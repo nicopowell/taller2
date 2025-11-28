@@ -1,0 +1,28 @@
+@model MVC.Models.Presupuesto
+
+@{
+    ViewData["Title"] = "Eliminar Presupuesto";
+}
+
+<h2 class="mt-4 text-danger">Eliminar Presupuesto</h2>
+<h3 class="mt-3">¿Está seguro de que desea eliminar este presupuesto y todos sus detalles?</h3>
+<hr />
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.IdPresupuesto)</dd>
+        
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NombreDestinatario)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.NombreDestinatario)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FechaCreacion)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaCreacion)</dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="IdPresupuesto" />
+        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+        <a asp-action="Index">Volver a la lista</a>
+    </form>
+</div>
