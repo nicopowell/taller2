@@ -1,3 +1,16 @@
+<!-- 
+    ================================================================================
+    VISTA: LOGIN (Inicio de Sesión)
+    ================================================================================
+    CONCEPTO TEÓRICO: Autenticación & Formularios (TP 10 - Fase 2)
+    
+    1. Propósito:
+       Permitir al usuario ingresar sus credenciales (Usuario y Contraseña) para
+       acceder al sistema.
+       
+    2. model: Usamos 'LoginViewModel' para transportar los datos del formulario
+       al controlador y recibir mensajes de error si la autenticación falla.
+-->
 @model MVC.ViewModels.LoginViewModel 
 
 @{
@@ -6,7 +19,11 @@
 
 <h2 class="text-center">@ViewData["Title"]</h2>
 
-<!-- Mostrar mensaje de error si existe -->
+<!-- 
+    BLOQUE DE ERROR:
+    Si el controlador detecta credenciales inválidas, llena la propiedad 'ErrorMessage'
+    del ViewModel. Aquí comprobamos si hay un mensaje y lo mostramos en una alerta roja.
+-->
 @if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger" role="alert">
@@ -14,17 +31,32 @@
     </div>
 }
 
+<!-- Contenedor centrado para el formulario de Login -->
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%;">
         <h4 class="card-title text-center mb-4">Iniciar sesión</h4>
+        
+        <!-- 
+            FORMULARIO (POST a Login):
+            asp-action="Login": Envía los datos a la acción 'Login' del controlador actual (LoginController).
+            method="post": Fundamental para enviar credenciales de forma "segura" en el cuerpo de la petición.
+        -->
         <form method="post" asp-action="Login">
+            
+            <!-- Campo Usuario -->
             <div class="mb-3">
                 <label for="username" class="form-label">Usuario:</label>
+                <!-- 
+                    value="@Model.Username": Mantiene el nombre de usuario escrito si el login falla,
+                    para que el usuario no tenga que escribirlo de nuevo (Mejora de UX).
+                -->
                 <input type="text" class="form-control" id="username" name="username" value="@Model.Username" required />
             </div>
 
+            <!-- Campo Contraseña -->
             <div class="mb-3">
                 <label for="password" class="form-label">Contraseña:</label>
+                <!-- type="password": Oculta los caracteres escritos. -->
                 <input type="password" class="form-control" id="password" name="password" required />
             </div>
 
@@ -34,4 +66,3 @@
         </form>
     </div>
 </div>
-

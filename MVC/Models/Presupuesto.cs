@@ -1,53 +1,77 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq; // Necesario para usar .Sum()
 
-namespace MVC.Models;
+namespace MVC.Models
+{
+    // ====================================================================================
+    // MODELO DE DOMINIO: PRESUPUESTO (Entidad Principal)
+    // ====================================================================================
+    // CONCEPTO TEÓRICO: Entidades (Tema 12) & Composición (POO - Tema 02)
+    //
+    // 1. ¿Qué representa?
+    //    Es la cabecera de un presupuesto. Contiene los datos generales (quién y cuándo).
+    //
+    // 2. Relación (Composición/Agregación):
+    //    Un Presupuesto "TIENE MUCHOS" Detalles (Items). 
+    //    Esta relación se modela con una lista: List<PresupuestoDetalle>.
+    // ====================================================================================
 
     public class Presupuesto
     {
-        private const decimal IVA = 0.21m; // 21% de IVA
+        private const decimal IVA = 0.21m; // Constante de negocio (21% IVA).
 
-        // Propiedades de la Entidad
+        // --------------------------------------------------------------------------------
+        // PROPIEDADES (Datos)
+        // --------------------------------------------------------------------------------
+        
+        // Clave Primaria (PK) en la base de datos.
         public int IdPresupuesto { get; set; }
+        
+        // Nombre del cliente o destinatario.
         public string NombreDestinatario { get; set; }
+        
+        // Fecha de emisión.
         public DateTime FechaCreacion { get; set; }
 
-        // ❗ Propiedad Relacional (Colección de ítems)
+        // ❗ PROPIEDAD DE NAVEGACIÓN (Relación 1:N) ❗
+        // Representa los renglones del presupuesto.
+        // Se inicializa con 'new List<...>()' para evitar NullReferenceException al agregar ítems.
         public List<PresupuestoDetalle> Detalle { get; set; } = new List<PresupuestoDetalle>();
 
-        // ------------------------------------------------------------------
-        // MÉTODOS DE LÓGICA DE NEGOCIO REQUERIDOS
-        // ------------------------------------------------------------------
-        
+        // --------------------------------------------------------------------------------
+        // MÉTODOS DE LÓGICA DE NEGOCIO (POO - Encapsulamiento)
+        // --------------------------------------------------------------------------------
+        // En lugar de calcular totales en el Controlador, la Entidad sabe calcularse a sí misma.
+        // Esto cumple con el principio de que los objetos deben ser responsables de su propio estado.
+
         /// <summary>
-        /// Calcula el monto total del presupuesto SIN IVA.
+        /// Calcula el monto total del presupuesto sumando los subtotales de sus detalles.
+        /// (Precio * Cantidad) de cada ítem.
         /// </summary>
-        /// <returns>Monto total base.</returns>
         public decimal MontoPresupuesto()
         {
-            // Se calcula sumando el subtotal de cada detalle (Precio * Cantidad)
+            // Usamos LINQ 'Sum' para iterar sobre la lista 'Detalle'.
+            // d representa un objeto PresupuestoDetalle.
+            // Se asume que 'd.Producto' está cargado (no es null).
             return Detalle.Sum(d => d.Producto.Precio * d.Cantidad);
         }
 
         /// <summary>
-        /// Calcula el monto total del presupuesto CON IVA (21%).
+        /// Calcula el monto total aplicando el IVA.
         /// </summary>
-        /// <returns>Monto total con IVA incluido.</returns>
         public decimal MontoPresupuestoConIva()
         {
             decimal montoBase = MontoPresupuesto();
-            // Retorna el monto base más el 21% del IVA
             return montoBase * (1 + IVA);
         }
 
         /// <summary>
-        /// Cuenta el total de productos sumando las cantidades de todos los ítems.
+        /// Cuenta la cantidad total de unidades de productos (bultos).
         /// </summary>
-        /// <returns>Cantidad total de unidades de productos.</returns>
         public int CantidadProductos()
         {
-            // Suma la propiedad Cantidad de cada elemento en la lista Detalle
             return Detalle.Sum(d => d.Cantidad);
         }
     }
+}

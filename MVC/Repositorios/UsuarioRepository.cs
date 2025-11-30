@@ -1,22 +1,44 @@
 using Microsoft.Data.Sqlite;
 using MVC.Interfaces;
-using MVC.Models; // Asume que la clase Usuario está en la carpeta Models
+using MVC.Models; 
 
-namespace MVC.Repositorios;
+namespace MVC.Repositorios
+{
+    // ====================================================================================
+    // REPOSITORIO DE USUARIOS (Acceso a Datos de Autenticación)
+    // ====================================================================================
+    // CONCEPTO TEÓRICO: Patrón Repositorio (TP 10) & Seguridad
+    //
+    // 1. Objetivo:
+    //    Implementar la lógica concreta para buscar usuarios en la base de datos SQLite.
+    //    Cumple con el contrato definido en 'IUserRepository'.
+    //
+    // 2. Inyección de Dependencias:
+    //    Esta clase se registra en Program.cs como la implementación concreta de IUserRepository.
+    // ====================================================================================
 
-    // ❗ Implementa la interfaz para permitir la Inyección de Dependencias
     public class UsuarioRepository : IUserRepository
     {
-        // Cadena de conexión SQLite
-        // Asegúrate de que esta ruta sea correcta para tu proyecto
+        // Cadena de conexión a la base de datos (Hardcoded para el TP).
         private readonly string CadenaConexion = "Data Source=./DB/tienda.db";
 
-        // Constructor vacío (la Inyección de Dependencias se aplicará en el Controller)
+        // Constructor vacío (la Inyección de Dependencias se aplica al INYECTAR esta clase, no aquí).
+        public UsuarioRepository()
+        {
+        }
+
+        // --------------------------------------------------------------------------------
+        // MÉTODO: OBTENER USUARIO (LOGIN)
+        // --------------------------------------------------------------------------------
+        // Busca un usuario que coincida EXACTAMENTE con el nombre de usuario y la contraseña.
         public Usuario GetUser(string usuario, string contrasena)
         {
             Usuario user = null;
 
-            // ❗ Consulta SQL que busca por Usuario Y Contrasena
+            // CONSULTA SQL:
+            // Seleccionamos todos los datos necesarios para construir el objeto Usuario.
+            // Filtramos por User y Pass.
+            // NOTA: En un sistema real, la contraseña debería estar hasheada y se compararía el hash.
             const string sql = @"
                 SELECT Id, Nombre, User, Pass, Rol 
                 FROM Usuarios 
@@ -27,25 +49,32 @@ namespace MVC.Repositorios;
 
             using var comando = new SqliteCommand(sql, conexion);
             
-            // ❗ Se usan parámetros para prevenir inyección SQL
+            // ❗ SEGURIDAD CRÍTICA: USO DE PARÁMETROS ❗
+            // NUNCA concatenar strings en una consulta de Login (ej: "... WHERE User = '" + usuario + "'").
+            // Eso permitiría ataques de Inyección SQL (ej: entrar con "' OR '1'='1").
+            // Los parámetros (@Usuario, @Contrasena) aseguran que los valores se traten como datos, no código.
             comando.Parameters.AddWithValue("@Usuario", usuario);
             comando.Parameters.AddWithValue("@Contrasena", contrasena);
 
             using var reader = comando.ExecuteReader();
 
+            // Si reader.Read() devuelve true, significa que encontró UN registro (login exitoso).
             if (reader.Read())
             {
-                // Si el lector encuentra una fila, el usuario existe y las credenciales son correctas
                 user = new Usuario
                 {
                     Id = reader.GetInt32(0),
                     Nombre = reader.GetString(1),
                     User = reader.GetString(2),
                     Pass = reader.GetString(3),
-                    Rol = reader.GetString(4) // ❗ El Rol es crucial para la Autorización (Punto 3.e)
+                    
+                    // ❗ ROL: Dato crucial que se guardará en la sesión para autorizar acciones.
+                    Rol = reader.GetString(4) 
                 };
             }
             
+            // Si no se encontró nada, 'user' sigue siendo null, lo que indicará al servicio que el login falló.
             return user;
         }
     }
+}

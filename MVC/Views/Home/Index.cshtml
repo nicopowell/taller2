@@ -1,8 +1,44 @@
-﻿@{
+﻿<!-- 
+    ================================================================================
+    VISTA: HOME INDEX (Página Principal)
+    ================================================================================
+    CONCEPTO TEÓRICO: Vistas Razor & Layouts (TP 8 - Tema 11)
+    
+    1. Propósito:
+       Esta es la vista por defecto que se carga al entrar a la raíz del sitio ("/").
+       No tiene model porque es una página estática/informativa que no procesa datos.
+-->
+
+@{
+    // --------------------------------------------------------------------------------
+    // VIEW DATA (Diccionario de Datos)
+    // --------------------------------------------------------------------------------
+    // 'ViewData' es un diccionario débilmente tipado (string, object) para pasar datos
+    // pequeños desde el Controlador a la Vista, o de la Vista al Layout.
+    
+    // Aquí seteamos "Title". El archivo '_Layout.cshtml' leerá esto más tarde 
+    // con @ViewData["Title"] para ponerlo en la etiqueta <title> del navegador.
     ViewData["Title"] = "Home Page";
 }
 
+<!-- 
+    CONTENIDO PRINCIPAL (RenderBody)
+    Todo este HTML será inyectado dentro del <body> del archivo '_Layout.cshtml',
+    justo donde dice @RenderBody().
+-->
 <div class="text-center">
+    <!-- 
+        CLASES BOOTSTRAP (Estilos):
+        - text-center: Centra el texto horizontalmente.
+        - display-4: Tipografía de encabezado grande y delgada (estilo visual).
+    -->
     <h1 class="display-4">Welcome</h1>
+    
     <p>Taller de lenguajes 2 - Turno Tarde</p>
+    
+    <!-- 
+        Nota para el examen:
+        Si quisieras mostrar el nombre del usuario logueado aquí, podrías inyectar
+        el servicio de usuario o leerlo de la sesión, pero generalmente eso va en el Layout.
+    -->
 </div>

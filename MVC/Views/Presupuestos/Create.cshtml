@@ -1,4 +1,24 @@
-@model MVC.ViewModels.PresupuestoViewModel // ❗ Usa el ViewModel
+<!-- 
+    ================================================================================
+    VISTA: CREAR PRESUPUESTO (Create.cshtml)
+    ================================================================================
+    CONCEPTO TEÓRICO: Formularios, ViewModels & Validaciones (TP 8, TP 9)
+    
+    1. PROPOSITO:
+       Permitir al usuario crear un NUEVO presupuesto.
+       En esta primera etapa (Alta de Presupuesto), solo se piden los datos de cabecera:
+       - Nombre del Destinatario (Cliente)
+       - Fecha de Creación
+       
+       Los productos (el detalle) se agregan DESPUÉS de crear el presupuesto,
+       usando la acción 'AgregarProducto' (Relación N:M).
+       
+    2. model: 
+       Usamos 'PresupuestoViewModel' (NO la entidad 'Presupuesto') para aprovechar:
+       - Validación de datos obligatorios ([Required]).
+       - Formato de fecha ([DataType(DataType.Date)]).
+-->
+@model MVC.ViewModels.PresupuestoViewModel 
 
 @{
     ViewData["Title"] = "Crear Presupuesto";
@@ -9,18 +29,51 @@
 
 <div class="row">
     <div class="col-md-6">
+        <!-- 
+            FORMULARIO (Tag Helpers):
+            asp-action="Create": Envía los datos al método [HttpPost] Create del controlador 'Presupuestos'.
+            El formulario usará el método POST por defecto.
+        -->
         <form asp-action="Create">
+            
+            <!-- 
+                VALIDATION SUMMARY:
+                Muestra una lista de errores generales del modelo si existen.
+                "ModelOnly" significa que solo mostrará errores que no estén asociados a un campo específico
+                (por ejemplo, errores de validación cruzada o lógica de negocio global).
+            -->
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
+            <!-- GRUPO: NOMBRE DEL DESTINATARIO -->
             <div class="form-group">
+                <!-- 
+                    asp-for="NombreDestinatario":
+                    - Genera el label con el texto definido en [Display(Name="...")] del ViewModel.
+                    - Vincula el input con la propiedad del ViewModel.
+                -->
                 <label asp-for="NombreDestinatario" class="control-label"></label>
                 <input asp-for="NombreDestinatario" class="form-control" />
+                
+                <!-- 
+                    asp-validation-for="NombreDestinatario":
+                    Muestra el mensaje de error si el campo está vacío (gracias a [Required] en el VM).
+                -->
                 <span asp-validation-for="NombreDestinatario" class="text-danger"></span> 
             </div>
             
+            <!-- GRUPO: FECHA DE CREACIÓN -->
             <div class="form-group">
                 <label asp-for="FechaCreacion" class="control-label"></label>
+                
+                <!-- 
+                    INPUT DE FECHA:
+                    Gracias a que en el ViewModel la propiedad 'FechaCreacion' tiene el atributo
+                    [DataType(DataType.Date)], este input se renderizará automáticamente como
+                    <input type="date">, mostrando el selector de fecha nativo del navegador.
+                -->
                 <input asp-for="FechaCreacion" class="form-control" /> 
+                
+                <!-- Muestra errores como "La fecha es obligatoria" o la validación personalizada de fecha futura -->
                 <span asp-validation-for="FechaCreacion" class="text-danger"></span> 
             </div>
             
@@ -32,9 +85,15 @@
 </div>
 
 <div class="mt-3">
+    <!-- Enlace simple para cancelar y volver al listado -->
     <a asp-action="Index">Volver a la lista</a>
 </div>
 
+<!-- 
+    SECCIÓN DE SCRIPTS (Validación Cliente):
+    Inyecta los scripts de validación de jQuery para que las reglas [Required], etc.,
+    se verifiquen en el navegador antes de enviar el formulario al servidor.
+-->
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -1,3 +1,17 @@
+<!-- 
+    ================================================================================
+    VISTA: DETALLE DE PRODUCTO (Lectura)
+    ================================================================================
+    CONCEPTO TEÓRICO: Vistas Razor (TP 8)
+    
+    1. OBJETIVO: Mostrar la información completa de un objeto específico.
+       A diferencia de 'Index' (que recibe una List<Producto>), esta vista recibe
+       un solo objeto 'Producto'.
+       
+    2. model: Usamos la Entidad de Dominio 'MVC.Models.Producto'.
+       Al igual que en Delete, como es solo lectura y no hay validación de entrada,
+       es aceptable usar la entidad directamente en lugar de un ViewModel.
+-->
 @model MVC.Models.Producto
 
 @{
@@ -8,12 +22,25 @@
 <hr />
 
 <div>
+    <!-- 
+        Lista de Definición (<dl>):
+        Es la estructura HTML semántica recomendada para pares de "Etiqueta - Valor".
+        Bootstrap usa las clases 'row', 'col-sm-4' (etiqueta) y 'col-sm-8' (dato)
+        para alinearlos visualmente.
+    -->
     <dl class="row">
         
+        <!-- Etiqueta del campo -->
         <dt class="col-sm-4">
             Descripción del Producto 
         </dt>
+        <!-- Valor del campo -->
         <dd class="col-sm-8">
+            <!-- 
+                @Model.Descripcion:
+                Accedemos a las propiedades del objeto enviado por el Controlador.
+                Razor renderiza esto como texto plano en el HTML.
+            -->
             @Model.Descripcion
         </dd>
 
@@ -28,6 +55,20 @@
 </div>
 
 <div class="mt-4">
+    <!-- 
+        TAG HELPERS DE NAVEGACIÓN CON PARÁMETROS:
+        
+        1. asp-action="Edit": Genera el href hacia "/Productos/Edit".
+        
+        2. asp-route-id="@Model.IdProducto": 
+           ¡ESTO ES IMPORTANTE!
+           Agrega el parámetro de ruta a la URL.
+           Resultado final: href="/Productos/Edit/5" (si el ID es 5).
+           
+           Sin esto, el controlador recibiría un ID nulo y daría error (NotFound).
+    -->
     <a asp-action="Edit" asp-route-id="@Model.IdProducto" class="btn btn-warning">Modificar</a> |
+    
+    <!-- Vuelta simple al listado -->
     <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
 </div>

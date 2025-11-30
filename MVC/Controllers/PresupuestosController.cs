@@ -1,162 +1,180 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using MVC.Models; // Asumimos que los Modelos están aquí
-using MVC.ViewModels; // ❗ IMPORTANTE: Los nuevos ViewModels
-using Microsoft.AspNetCore.Mvc.Rendering; // Necesario para SelectList
+using MVC.Models; 
+using MVC.ViewModels; 
+using Microsoft.AspNetCore.Mvc.Rendering; 
 using MVC.Interfaces;
 
-namespace MVC.Controllers;
-
+namespace MVC.Controllers
+{
+    // ====================================================================================
+    // CONTROLADOR DE PRESUPUESTOS
+    // ====================================================================================
+    // CONCEPTO TEÓRICO: Orquestación Compleja (TP 8/9/10)
+    //
+    // 1. Responsabilidad: Gestionar el ciclo de vida de los Presupuestos Y sus detalles.
+    // 2. Dependencias:
+    //    - IPresupuestoRepository: Para guardar/leer presupuestos.
+    //    - IProductoRepository: Para llenar los dropdowns de productos.
+    //    - IAuthenticationService: Para proteger las rutas (Seguridad).
+    // ====================================================================================
 
     public class PresupuestosController : Controller
     {
-        private  IPresupuestoRepository _repo; //= new PresupuestoRepository();
-        // Se necesita el repositorio de Productos para llenar los Dropdowns
-        private  IProductoRepository _productoRepo; //= new ProductoRepository(); 
-        private  IAuthenticationService _authService;
-    public PresupuestosController(IPresupuestoRepository repo, IProductoRepository prodRepo, IAuthenticationService authService)
+        // Variables privadas para las dependencias inyectadas (Interfaces).
+        private IPresupuestoRepository _repo; 
+        private IProductoRepository _productoRepo; 
+        private IAuthenticationService _authService;
+
+        // --------------------------------------------------------------------------------
+        // CONSTRUCTOR (DI)
+        // --------------------------------------------------------------------------------
+        // Recibe 3 servicios inyectados por el contenedor de dependencias (Program.cs).
+        public PresupuestosController(IPresupuestoRepository repo, IProductoRepository prodRepo, IAuthenticationService authService)
         {
-            _repo =repo;
-            _productoRepo=prodRepo;
-            _authService=authService;
+            _repo = repo;
+            _productoRepo = prodRepo;
+            _authService = authService;
         }
 
-    // ------------------------------------------------------------------
-    // 1. LISTAR (INDEX)
-    // ------------------------------------------------------------------
-    public IActionResult Index()
+        // --------------------------------------------------------------------------------
+        // 1. LISTAR (INDEX)
+        // --------------------------------------------------------------------------------
+        public IActionResult Index()
         {
-            // Comprobación manual de autenticación
-        if (!_authService.IsAuthenticated())
-        {
-            return RedirectToAction("Index", "Login");
+            // 1. AUTENTICACIÓN: ¿Está logueado?
+            if (!_authService.IsAuthenticated())
+            {
+                return RedirectToAction("Index", "Login");
+            }
+
+            // 2. AUTORIZACIÓN: Regla de Negocio TP 10
+            // "Administradores" y "Clientes" pueden ver el listado.
+            if (_authService.HasAccessLevel("Administrador") || _authService.HasAccessLevel("Cliente"))
+            {
+                // Si tiene permiso, buscamos los datos y mostramos la vista.
+                var presupuestos = _repo.GetAll();
+                return View(presupuestos);
+            }
+            else
+            {
+                // Usuario logueado pero sin rol válido (ej: rol desconocido).
+                return RedirectToAction("Index", "Login");
+            }
         }
 
-        // Comprobación manual de nivel de acceso
-        if (_authService.HasAccessLevel("Administrador") || _authService.HasAccessLevel("Cliente") )
-        {
-            //si es admin o cliente entra
-        var presupuestos = _repo.GetAll();
-        return View(presupuestos);
-        }
-        else
-        {
-            return RedirectToAction("Index", "Login");
-        }
-
-        
-        }
-
-        // ------------------------------------------------------------------
-        // 2. DETALLE (DETAILS) - Necesario para la lógica relacional
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
+        // 2. DETALLE (DETAILS)
+        // --------------------------------------------------------------------------------
+        // Muestra la cabecera del presupuesto Y la lista de productos asociados.
         public IActionResult Details(int id)
         {
+            // Reutilizamos la lógica de seguridad del Index (lectura permitida a ambos).
+            // Nota: Podría refactorizarse en un método privado 'CheckReadPermissions' para ser más DRY.
+            
+            // Carga "Eager" (Ansiosa): GetById trae el presupuesto CON sus detalles.
             var presupuesto = _repo.GetById(id);
+            
             if (presupuesto == null)
             {
                 return NotFound();
             }
-            return View(presupuesto); // La vista mostrará los detalles y el listado de productos
+            
+            return View(presupuesto); 
         }
 
-        // ------------------------------------------------------------------
-        // 3. CREAR (CREATE)
-        // ------------------------------------------------------------------
-        // GET: Presupuestos/Create
+        // --------------------------------------------------------------------------------
+        // 3. CREAR (CREATE) - Solo Cabecera
+        // --------------------------------------------------------------------------------
+        // GET: Muestra el formulario vacío.
         public IActionResult Create()
         {
-         
-           if (!_authService.IsAuthenticated())
-        {
-            return RedirectToAction("Index", "Login");
-        }
+            // 1. Autenticación
+            if (!_authService.IsAuthenticated())
+            {
+                return RedirectToAction("Index", "Login");
+            }
 
-        // Comprobación manual de nivel de acceso
-        if (!_authService.HasAccessLevel("Administrador"))
-        {
-            return RedirectToAction(nameof(AccesoDenegado));
-        }
-           // Se retorna un VM vacío para el formulario
+            // 2. Autorización ESTRICTA: Solo Administradores pueden crear.
+            if (!_authService.HasAccessLevel("Administrador"))
+            {
+                return RedirectToAction(nameof(AccesoDenegado));
+            }
+            
+            // Retorna un VM vacío para que los Tag Helpers generen el formulario.
             return View(new PresupuestoViewModel());
         }
 
-        // ❗ POST: Presupuestos/Create (CON VALIDACIÓN)
+        // POST: Procesa la creación de la cabecera.
         [HttpPost]
         public IActionResult Create(PresupuestoViewModel presupuestoVM) 
         {
-            // ❗ 1. VALIDACIÓN DE REGLA DE NEGOCIO ESPECÍFICA (Fecha no Futura)
+            // ❗ 1. VALIDACIÓN PERSONALIZADA (Regla de Negocio TP 9)
+            // "La fecha de creación no puede ser futura".
+            // Validamos esto manualmente y agregamos el error al ModelState si falla.
             if (presupuestoVM.FechaCreacion > DateTime.Today)
             {
-                // Se añade un error al ModelState
                 ModelState.AddModelError("FechaCreacion", "La fecha de creación no puede ser una fecha futura.");
             }
             
-            // ❗ 2. CHEQUEO DE SEGURIDAD (incluye el error de Fecha si se añadió)
+            // ❗ 2. CHEQUEO DE SEGURIDAD GENERAL
             if (!ModelState.IsValid)
             {
-                // ❌ Si falla: Retorna a la misma vista con el VM para mostrar los errores
+                // Si falla, volvemos a la vista mostrando los errores.
                 return View(presupuestoVM); 
             }
             
-            // 🟢 3. SI ES VÁLIDO: Mapeo Manual (VM -> Modelo de Dominio)
+            // 🟢 3. MAPEO (VM -> Entidad)
             var nuevoPresupuesto = new Presupuesto
             {
                 NombreDestinatario = presupuestoVM.NombreDestinatario,
                 FechaCreacion = presupuestoVM.FechaCreacion
             };
 
-            // 4. Llamada al Repositorio
+            // 4. PERSISTENCIA
             _repo.Add(nuevoPresupuesto); 
             return RedirectToAction(nameof(Index)); 
         }
 
-        // ------------------------------------------------------------------
-        // 4. EDITAR (EDIT)
-        // ------------------------------------------------------------------
-        // GET: Presupuestos/Edit/5
+        // --------------------------------------------------------------------------------
+        // 4. EDITAR (EDIT) - Solo Cabecera
+        // --------------------------------------------------------------------------------
+        // GET: Carga datos para editar.
         public IActionResult Edit(int id)
         {
-               if (!_authService.IsAuthenticated())
-        {
-            return RedirectToAction("Index", "Login");
-        }
+            if (!_authService.IsAuthenticated()) return RedirectToAction("Index", "Login");
 
-        // Comprobación manual de nivel de acceso
-        if (!_authService.HasAccessLevel("Administrador"))
-        {
-            return RedirectToAction(nameof(AccesoDenegado));
-        }
-        
-        var presupuesto = _repo.GetById(id);
-        if (presupuesto == null) return NotFound();
+            // Solo Admin puede editar.
+            if (!_authService.HasAccessLevel("Administrador")) return RedirectToAction(nameof(AccesoDenegado));
+            
+            var presupuesto = _repo.GetById(id);
+            if (presupuesto == null) return NotFound();
 
-        // Mapeo inverso (Modelo de Dominio -> VM) para la vista GET
-        var presupuestoVM = new PresupuestoViewModel(presupuesto);
+            // Mapeo Inverso: Entidad -> VM para mostrar en la vista.
+            var presupuestoVM = new PresupuestoViewModel(presupuesto);
 
             return View(presupuestoVM);
         }
 
-        // ❗ POST: Presupuestos/Edit/5 (CON VALIDACIÓN)
+        // POST: Guarda cambios.
         [HttpPost]
         public IActionResult Edit(int id, PresupuestoViewModel presupuestoVM)
         {
             if (id != presupuestoVM.IdPresupuesto) return NotFound();
 
-            // ❗ 1. VALIDACIÓN DE REGLA DE NEGOCIO Específica
+            // 1. Validación de Regla de Negocio (Fecha).
             if (presupuestoVM.FechaCreacion > DateTime.Today)
             {
                 ModelState.AddModelError("FechaCreacion", "La fecha de creación no puede ser una fecha futura.");
             }
 
-            // ❗ 2. CHEQUEO DE SEGURIDAD
+            // 2. Validación del Modelo.
             if (!ModelState.IsValid)
             {
-                // ❌ Si falla: Retorna a la vista con el VM
                 return View(presupuestoVM); 
             }
 
-            // 🟢 3. Mapeo Manual (VM -> Modelo de Dominio)
+            // 3. Mapeo.
             var presupuestoAEditar = new Presupuesto
             {
                 IdPresupuesto = presupuestoVM.IdPresupuesto,
@@ -164,121 +182,110 @@ namespace MVC.Controllers;
                 FechaCreacion = presupuestoVM.FechaCreacion
             };
 
-            // 4. Llamada al Repositorio
+            // 4. Update.
             _repo.Update(presupuestoAEditar);
             return RedirectToAction(nameof(Index));
         }
 
-        // ------------------------------------------------------------------
+        // --------------------------------------------------------------------------------
         // 5. ELIMINAR (DELETE)
-        // ------------------------------------------------------------------
-        // GET: Presupuestos/Delete/5
+        // --------------------------------------------------------------------------------
         public IActionResult Delete(int id)
         {
-               if (!_authService.IsAuthenticated())
-        {
-            return RedirectToAction("Index", "Login");
-        }
-
-        // Comprobación manual de nivel de acceso
-        if (!_authService.HasAccessLevel("Administrador"))
-        {
-            return RedirectToAction(nameof(AccesoDenegado));
-        }
+            if (!_authService.IsAuthenticated()) return RedirectToAction("Index", "Login");
+            if (!_authService.HasAccessLevel("Administrador")) return RedirectToAction(nameof(AccesoDenegado));
 
             var presupuesto = _repo.GetById(id);
-            if (presupuesto == null)
-            {
-                return NotFound();
-            }
+            if (presupuesto == null) return NotFound();
+            
             return View(presupuesto);
         }
 
-        // POST: Presupuestos/Delete/5 (POST de confirmación)
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
-            _repo.Delete(id);
+            // El repositorio se encarga de borrar primero los detalles y luego la cabecera.
+            _repo.Delete(id); 
             return RedirectToAction(nameof(Index));
         }
 
-        // ==================================================================
-        // 6. LÓGICA RELACIONAL N:M (AGREGAR PRODUCTOS)
-        // ==================================================================
-
-        // 🔗 GET: Presupuestos/AgregarProducto/5
+        // ====================================================================================
+        // 6. LÓGICA RELACIONAL: AGREGAR PRODUCTO (N:M) - ¡IMPORTANTE!
+        // ====================================================================================
+        // Esta sección maneja la complejidad de agregar un ítem a un presupuesto existente.
+        
+        // GET: Muestra el formulario con el Dropdown de productos.
         public IActionResult AgregarProducto(int id)
         {
-               if (!_authService.IsAuthenticated())
-        {
-            return RedirectToAction("Index", "Login");
-        }
-
-        // Comprobación manual de nivel de acceso
-        if (!_authService.HasAccessLevel("Administrador"))
-        {
-            return RedirectToAction(nameof(AccesoDenegado));
-        }
-            // 1. Obtener los productos disponibles
+            if (!_authService.IsAuthenticated()) return RedirectToAction("Index", "Login");
+            if (!_authService.HasAccessLevel("Administrador")) return RedirectToAction(nameof(AccesoDenegado));
+            
+            // 1. Obtener lista de productos para el <select>.
             List<Producto> productos = _productoRepo.GetAll();
             
-            // 2. Crear el ViewModel
+            // 2. Configurar el ViewModel especial para esta acción.
             AgregarProductoViewModel model = new AgregarProductoViewModel
             {
-                IdPresupuesto = id, // Pasamos el ID del presupuesto actual
-                // 3. Crear el SelectList
+                IdPresupuesto = id, // Guardamos a qué presupuesto volveremos.
+                // SelectList(FuenteDatos, ValorOculto, TextoVisible)
                 ListaProductos = new SelectList(productos, "IdProducto", "Descripcion")
             };
             
             return View(model);
         }
 
-    // ❗ 🔗 POST: Presupuestos/AgregarProducto (CON VALIDACIÓN DE CANTIDAD)
-    [HttpPost]
-    public IActionResult AgregarProducto(AgregarProductoViewModel model)
-    {
-        // 1. Chequeo de Seguridad para la Cantidad
-        if (!ModelState.IsValid)
+        // POST: Procesa la relación.
+        [HttpPost]
+        public IActionResult AgregarProducto(AgregarProductoViewModel model)
         {
-            // ❌ LÓGICA CRÍTICA DE RECARGA: Si la validación falla (ej. Cantidad < 1),
-            // Muestra todos los errores en la Consola/Debug Output de Visual Studio
-            foreach (var modelStateKey in ModelState.Keys)
+            // 1. VALIDACIÓN
+            if (!ModelState.IsValid)
             {
-                var modelStateVal = ModelState[modelStateKey];
-                foreach (var error in modelStateVal.Errors)
+                // ❌ FALLO CRÍTICO COMÚN EN EXÁMENES:
+                // Si la validación falla (ej: Cantidad negativa), volvemos a la vista.
+                // PERO... el objeto 'SelectList' se perdió porque HTML no envía listas completas de vuelta.
+                // SI NO LO RECARGAMOS AQUÍ, LA VISTA LANZARÁ UNA EXCEPCIÓN (NullReference en el foreach del select).
+                
+                // Debugging: Imprimir errores en consola para ayudar al desarrollo.
+                foreach (var modelStateKey in ModelState.Keys)
                 {
-                    // Imprime el nombre del campo y el error de validación exacto.
-                    Console.WriteLine($"Error en el campo '{modelStateKey}': {error.ErrorMessage}");
+                    var modelStateVal = ModelState[modelStateKey];
+                    foreach (var error in modelStateVal.Errors)
+                    {
+                        Console.WriteLine($"Error en el campo '{modelStateKey}': {error.ErrorMessage}");
+                    }
                 }
-            }
-    
-            // DEBEMOS recargar el SelectList antes de devolver la vista.
-            var productos = _productoRepo.GetAll();
-            model.ListaProductos = new SelectList(productos, "IdProducto", "Descripcion");
+        
+                // RECARGA DEL DROPDOWN (Obligatorio antes de return View).
+                var productos = _productoRepo.GetAll();
+                model.ListaProductos = new SelectList(productos, "IdProducto", "Descripcion");
 
-            // Devolvemos el modelo con los errores y el dropdown recargado
-            return View(model);
+                return View(model);
+            }
+
+            // 🟢 2. PERSISTENCIA RELACIONAL
+            // Llamamos al método especial del repositorio que hace el INSERT en la tabla intermedia.
+            _repo.AddDetalle(model.IdPresupuesto, model.IdProducto, model.Cantidad);
+
+            // 3. REDIRECCIÓN
+            // Volvemos al detalle del presupuesto para ver el producto recién agregado.
+            return RedirectToAction(nameof(Details), new { id = model.IdPresupuesto });
         }
 
-        // 🟢 2. Si es VÁLIDO: Llamamos al repositorio para guardar la relación
-        _repo.AddDetalle(model.IdPresupuesto, model.IdProducto, model.Cantidad);
-
-        // 3. Redirigimos al detalle del presupuesto
-        return RedirectToAction(nameof(Details), new { id = model.IdPresupuesto });
-    }
-
-    // ❗ Nueva Acción: Simplemente devuelve una vista estática con el mensaje.
-public IActionResult AccesoDenegado()
-{
-    // El usuario está logueado, pero no tiene el rol suficiente.
-    return View();
-}    
+        // --------------------------------------------------------------------------------
+        // MÉTODOS AUXILIARES Y ERRORES
+        // --------------------------------------------------------------------------------
         
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        public IActionResult AccesoDenegado()
+        {
+            // Muestra la vista estática "AccesoDenegado.cshtml".
+            return View();
+        }    
+        
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
     }
-    
-
-    }
+}

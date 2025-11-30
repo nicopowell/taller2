@@ -1,48 +1,113 @@
-@model MVC.ViewModels.ProductoViewModel // ❗ Usa el ViewModel
+<!-- 
+    ================================================================================
+    VISTA: CREAR PRODUCTO (Create.cshtml)
+    ================================================================================
+    CONCEPTO TEÓRICO: Vistas Razor (TP 8) & Validación Cliente (TP 9)
+    
+    1. model: Directiva fundamental. Define el "tipo" de datos que esta vista espera recibir.
+       Aquí usamos 'ProductoViewModel' (NO la entidad 'Producto') para aprovechar las
+       validaciones de presentación ([Required], [StringLength]) definidas en el TP 9.
+       Esto permite que la vista sea "fuertemente tipada" (IntelliSense ayuda).
+-->
+@model MVC.ViewModels.ProductoViewModel
 
 @{
-    ViewData["Title"] = "Crear Producto";
+  ViewData["Title"] = "Crear Producto";
 }
 
 <h2 class="mt-4">Crear Nuevo Producto</h2>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+  <div class="col-md-4">
+    <!-- 
+            FORMULARIO (Tag Helper asp-action):
+            En lugar de escribir <form action="/Productos/Create" method="post">,
+            usamos 'asp-action="Create"'.
             
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span> 
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="Precio" class="control-label"></label>
-                <input asp-for="Precio" class="form-control" />
-                <span asp-validation-for="Precio" class="text-danger"></span> 
-            </div>
-            
-            <div class="form-group mt-3">
-                <input type="submit" value="Crear" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+            Esto le dice a Razor: "Genera la URL correcta para ir a la acción 'Create' 
+            del Mismo Controlador actual (Productos) usando el método POST".
+            También genera automáticamente un "Anti-Forgery Token" oculto para seguridad.
+        -->
+    <form asp-action="Create">
+
+      <!-- GRUPO: DESCRIPCIÓN -->
+      <div class="form-group">
+        <!-- 
+                    asp-for="Descripcion":
+                    1. Crea el atributo 'for="Descripcion"' en el label.
+                    2. Muestra el texto definido en [Display(Name="...")] del ViewModel.
+                -->
+        <label asp-for="Descripcion" class="control-label"></label>
+
+        <!-- 
+                    asp-for="Descripcion" (en el input):
+                    1. Genera id="Descripcion" y name="Descripcion".
+                    2. Si el modelo vuelve con errores, rellena automáticamente el valor (value="...").
+                    3. Agrega atributos 'data-val' para que jQuery Validation sepa qué reglas aplicar
+                       (ej: data-val-length-max="250").
+                -->
+        <input asp-for="Descripcion" class="form-control" />
+
+        <!-- 
+                    asp-validation-for="Descripcion":
+                    Este es el "lugar reservado" para mostrar el mensaje de error.
+                    Si falla la validación (servidor o cliente), el texto rojo aparece aquí.
+                -->
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+      </div>
+
+      <!-- GRUPO: PRECIO -->
+      <div class="form-group">
+        <label asp-for="Precio" class="control-label"></label>
+        <!-- 
+                    Al ser la propiedad 'Precio' de tipo decimal/double, el Tag Helper
+                    automáticamente genera type="text" (o number según config) y las
+                    reglas de validación de rangos definidas en el ViewModel.
+                -->
+        <input asp-for="Precio" class="form-control" />
+        <span asp-validation-for="Precio" class="text-danger"></span>
+      </div>
+
+      <div class="form-group mt-3">
+        <input type="submit" value="Crear" class="btn btn-primary" />
+      </div>
+    </form>
+  </div>
 </div>
 <div>
-    <a asp-action="Index">Volver a la lista</a>
+  <!-- Enlace simple para volver al listado (método GET) -->
+  <a asp-action="Index">Volver a la lista</a>
 </div>
 
+<!-- 
+    SECCIÓN DE SCRIPTS (Validación de lado del Cliente - TP 9):
+    Esta sección se inyecta al final del layout (_Layout.cshtml) donde está "RenderSection".
+-->
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-   <script>
-        // Le dice a jQuery Validation que ignore la regla 'number'
-        // que es la que produce el error de la coma.
-        jQuery.validator.setDefaults({
-            rules: {
-                number: {
-                    required: false // Deshabilita el chequeo de tipo 'number' en el Front-End
-                }
-            }
-        });
-    </script>
+  <!-- 
+          1. Partial View '_ValidationScriptsPartial':
+             Esta es una vista parcial que viene por defecto en ASP.NET Core.
+             Incluye las librerías 'jquery.validate.js' y 'jquery.validate.unobtrusive.js'.
+           
+             * ¿Qué hace? Lee los atributos 'data-val' que generaron los inputs arriba
+               y ejecuta la validación en el navegador SIN recargar la página.
+      -->
+  <partial name="_ValidationScriptsPartial" />
+
+  <script>
+    // 2. PARCHE PARA DECIMALES (Cultura Local):
+    // jQuery Validation por defecto valida números formato USA (ej: 10.50).
+    // Si tu PC/Navegador está en español (ej: 10,50), la regla "number" falla y dice que no es un número.
+
+    // Este código le dice a la librería: "Ignora la validación de tipo 'number'".
+    // Con esto permitimos que el usuario escriba comas. La validación real de formato
+    // la hará el servidor (Model Binding), que sí entiende tu configuración regional.
+    jQuery.validator.setDefaults({
+      rules: {
+        number: {
+          required: false // Desactiva chequeo estricto de número en JS
+        }
+      }
+    });
+  </script>
 }

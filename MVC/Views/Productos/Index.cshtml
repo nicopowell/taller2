@@ -1,32 +1,14 @@
-@*@model List<MVC.Models.Producto>
-
-@{
-    ViewData["Title"] = "Listado de Productos";
-}
-
-<h2>Listado de Productos</h2>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Descripción del Producto</th>
-            <th>Precio Unitario</th>
-         
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var producto in Model)
-        {
-            <tr>
-                <td>@producto.Descripcion</td>
-                <td>@producto.Precio</td>
-                
-            </tr>
-        }
-    </tbody>
-</table>
-*@
-
+<!-- 
+    ================================================================================
+    VISTA: LISTADO DE PRODUCTOS (Index.cshtml)
+    ================================================================================
+    CONCEPTO TEÓRICO: Vistas Razor (TP 8) & Listado de Datos
+    
+    1. model List<MVC.Models.Producto>: 
+       Define que esta vista recibe una LISTA de productos, no uno solo.
+       Esto permite iterar sobre 'Model' usando un bucle foreach.
+       Usamos la entidad 'Producto' directa porque es solo lectura.
+-->
 @model List<MVC.Models.Producto>
 
 @{
@@ -36,6 +18,11 @@
 <h2>Listado de Productos</h2>
 
 <p>
+    <!-- 
+        Botón para crear nuevo:
+        Apunta a la acción 'Create' del mismo controlador.
+        Renderiza como: <a href="/Productos/Create">...</a>
+    -->
     <a asp-action="Create" class="btn btn-primary">Crear Nuevo Producto</a>
 </p>
 
@@ -48,12 +35,27 @@
         </tr>
     </thead>
     <tbody>
+        <!-- 
+            BUCLE FOREACH (Razor):
+            Itera sobre cada elemento de la lista 'Model' (que es List<Producto>).
+            Por cada producto, crea una fila (tr) en la tabla.
+        -->
         @foreach (var producto in Model)
         {
             <tr>
+                <!-- Muestra la propiedad Descripcion del item actual -->
                 <td>@producto.Descripcion</td>
+                
+                <!-- Muestra el Precio del item actual -->
                 <td>@producto.Precio</td>
+                
                 <td>
+                    <!-- 
+                        BOTONES DE ACCIÓN POR FILA:
+                        Cada botón necesita saber A QUÉ producto se refiere.
+                        Usamos 'asp-route-id="@producto.IdProducto"' para pasar el ID único
+                        en la URL (ej: /Productos/Edit/5).
+                    -->
                     <a asp-action="Edit" asp-route-id="@producto.IdProducto">Modificar</a> |
                     <a asp-action="Details" asp-route-id="@producto.IdProducto">Detalles</a> |
                     <a asp-action="Delete" asp-route-id="@producto.IdProducto">Eliminar</a>
