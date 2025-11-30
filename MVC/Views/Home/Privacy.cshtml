@@ -1,4 +1,4 @@
-﻿<!-- 
+﻿@* 
     ================================================================================
     VISTA: PRIVACY (Política de Privacidad)
     ================================================================================
@@ -12,7 +12,7 @@
     2. Uso de ViewData:
        Es el mecanismo estándar para pasar datos pequeños (como títulos) 
        del Controlador a la Vista, y de la Vista al Layout.
--->
+*@
 
 @{
     // Definimos el título de esta página específica.
@@ -21,17 +21,17 @@
     ViewData["Title"] = "Privacy Policy";
 }
 
-<!-- 
+@* 
     Renderizado del Título:
     Aquí recuperamos el valor que acabamos de guardar en ViewData para mostrarlo
     como encabezado principal (H1) en el cuerpo de la página.
--->
+*@
 <h1>@ViewData["Title"]</h1>
 
 <p>Use this page to detail your site's privacy policy.</p>
-<!-- 
+@* 
     Nota para el examen: 
     En un escenario real, aquí iría el texto legal de la política de privacidad.
     Al ser una vista .cshtml, podrías incluir lógica Razor si fuera necesario 
     (ej: mostrar una fecha de "última actualización" dinámica con @DateTime.Now).
--->
+*@

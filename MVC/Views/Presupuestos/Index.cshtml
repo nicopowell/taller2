@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: LISTADO DE PRESUPUESTOS (Index.cshtml)
     ================================================================================
@@ -8,7 +8,7 @@
        Define que esta vista recibe una COLECCIÓN de presupuestos.
        'IEnumerable' es la interfaz base para listas, arrays, etc.
        Usamos el Modelo de Dominio directo porque es solo lectura.
--->
+*@
 @model IEnumerable<MVC.Models.Presupuesto>
 
 @{
@@ -18,28 +18,28 @@
 <h2 class="mt-4">Listado de Presupuestos</h2>
 
 <p>
-  <!-- Botón para ir al formulario de creación -->
+  @* Botón para ir al formulario de creación *@
   <a asp-action="Create" class="btn btn-success">Crear Nuevo Presupuesto</a>
 </p>
 
 <table class="table">
   <thead>
     <tr>
-      <!-- 
+      @* 
                 Html.DisplayNameFor(...):
                 Este Helper es muy útil. No muestra el valor, sino el NOMBRE del campo.
                 Si en la clase 'Presupuesto' usaste [Display(Name="Fecha de Creación")],
                 eso es lo que se mostrará aquí. Si cambias el modelo, la vista se actualiza sola.
-            -->
+            *@
       <th>@Html.DisplayNameFor(model => model.IdPresupuesto)</th>
       <th>@Html.DisplayNameFor(model => model.NombreDestinatario)</th>
       <th>@Html.DisplayNameFor(model => model.FechaCreacion)</th>
-      <th>Monto Total (c/IVA)</th> <!-- Columna calculada -->
+      <th>Monto Total (c/IVA)</th> @* Columna calculada *@
       <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
-    <!-- Iteramos sobre la colección de presupuestos -->
+    @* Iteramos sobre la colección de presupuestos *@
     @foreach (var item in Model)
     {
       <tr>

@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: ELIMINAR PRESUPUESTO (Confirmación)
     ================================================================================
@@ -9,52 +9,52 @@
        Esta es una medida de seguridad (UX) para evitar borrados accidentales.
        
     2. model: Usamos la Entidad de Dominio 'Presupuesto' directamente (solo lectura).
--->
+*@
 @model MVC.Models.Presupuesto
 
 @{
     ViewData["Title"] = "Eliminar Presupuesto";
 }
 
-<!-- Título rojo para advertencia visual -->
+@* Título rojo para advertencia visual *@
 <h2 class="mt-4 text-danger">Eliminar Presupuesto</h2>
 <h3 class="mt-3">¿Está seguro de que desea eliminar este presupuesto y todos sus detalles?</h3>
 <hr />
 
 <div>
-    <!-- Lista de Definición para mostrar los datos del registro -->
+    @* Lista de Definición para mostrar los datos del registro *@
     <dl class="row">
-        <!-- ID (Solo lectura) -->
+        @* ID (Solo lectura) *@
         <dt class="col-sm-3">ID</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.IdPresupuesto)</dd>
         
-        <!-- Nombre del Destinatario -->
-        <!-- Html.DisplayNameFor: Muestra el nombre del campo (label) -->
+        @* Nombre del Destinatario *@
+        @* Html.DisplayNameFor: Muestra el nombre del campo (label) *@
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NombreDestinatario)</dt>
-        <!-- Html.DisplayFor: Muestra el valor del campo -->
+        @* Html.DisplayFor: Muestra el valor del campo *@
         <dd class="col-sm-9">@Html.DisplayFor(model => model.NombreDestinatario)</dd>
 
-        <!-- Fecha de Creación -->
+        @* Fecha de Creación *@
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FechaCreacion)</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaCreacion)</dd>
     </dl>
     
-    <!-- 
+    @* 
         FORMULARIO DE CONFIRMACIÓN (POST):
         Este formulario envía la petición final para borrar el registro.
         El ID viaja oculto para que el controlador sepa qué borrar.
-    -->
+    *@
     <form asp-action="Delete">
-        <!-- 
+        @* 
             CAMPO OCULTO (HIDDEN) PARA EL ID:
             Fundamental. Si no enviamos el ID, el controlador recibe 0 y no borra nada.
-        -->
+        *@
         <input type="hidden" asp-for="IdPresupuesto" />
         
-        <!-- Botón de envío (Submit) que dispara la acción destructiva -->
+        @* Botón de envío (Submit) que dispara la acción destructiva *@
         <input type="submit" value="Eliminar" class="btn btn-danger" /> |
         
-        <!-- Enlace para cancelar (vuelve al índice sin hacer cambios) -->
+        @* Enlace para cancelar (vuelve al índice sin hacer cambios) *@
         <a asp-action="Index">Volver a la lista</a>
     </form>
 </div>

@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: ELIMINAR PRODUCTO (Confirmación)
     ================================================================================
@@ -11,7 +11,7 @@
        No necesitamos validar entradas del usuario (TP 9), solo mostrar datos para confirmar.
        Por pragmatismo, a menudo se usa la entidad directa en Delete y Details, 
        aunque usar un ViewModel también sería correcto para pureza arquitectónica.
--->
+*@
 @model MVC.Models.Producto
 
 @{
@@ -20,24 +20,24 @@
 
 <h2>Eliminar Producto</h2>
 
-<!-- Mensaje de advertencia visual -->
+@* Mensaje de advertencia visual *@
 <h3 class="text-danger">¿Está seguro que desea eliminar este producto?</h3>
 <hr />
 
 <div>
     <h4>Detalles del Producto</h4>
-    <!-- 
+    @* 
         Lista de Definición (dl): Estructura estándar de Bootstrap para mostrar pares Clave-Valor.
         Ideal para vistas de tipo "Details" o "Delete".
-    -->
+    *@
     <dl class="row">
         
         <dt class="col-sm-4">
-            <!-- Etiqueta estática o podría usar @Html.DisplayNameFor(model => model.Descripcion) -->
+            @* Etiqueta estática o podría usar @Html.DisplayNameFor(model => model.Descripcion) *@
             Descripción del Producto
         </dt>
         <dd class="col-sm-8">
-            <!-- Muestra el valor de la propiedad del modelo -->
+            @* Muestra el valor de la propiedad del modelo *@
             @Model.Descripcion
         </dd>
 
@@ -45,33 +45,33 @@
             Precio Unitario
         </dt>
         <dd class="col-sm-8">
-            <!-- Muestra el precio. Podría formatearse con .ToString("C") para moneda -->
+            @* Muestra el precio. Podría formatearse con .ToString("C") para moneda *@
             @Model.Precio
         </dd>
         
     </dl>
 
-    <!-- 
+    @* 
         FORMULARIO DE CONFIRMACIÓN (POST)
         Este formulario envía la petición final para borrar el registro.
         
         asp-action="Delete": Apunta a la acción 'Delete' (o 'DeleteConfirmed') del controlador 
         usando el método POST.
-    -->
+    *@
     <form asp-action="Delete">
         
-        <!-- 
+        @* 
             IMPORTANTE: INPUT HIDDEN (Campo Oculto)
             Guardamos el ID del producto que queremos borrar.
             Cuando el usuario hace clic en "Confirmar", este ID viaja al servidor.
             Sin esto, el controlador recibiría un ID nulo o 0 y no sabría qué borrar.
-        -->
+        *@
         <input type="hidden" asp-for="IdProducto" />
         
-        <!-- Botón de envío que dispara el POST -->
+        @* Botón de envío que dispara el POST *@
         <input type="submit" value="Confirmar Eliminación" class="btn btn-danger" /> |
         
-        <!-- Enlace para cancelar y volver atrás (Petición GET normal) -->
+        @* Enlace para cancelar y volver atrás (Petición GET normal) *@
         <a asp-action="Index" class="btn btn-secondary">Cancelar y Volver a la lista</a>
     </form>
 </div>

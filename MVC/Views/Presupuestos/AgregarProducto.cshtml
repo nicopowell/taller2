@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: AGREGAR PRODUCTO A PRESUPUESTO (Relación N:M)
     ================================================================================
@@ -13,63 +13,63 @@
        - IdProducto (Selección)
        - Cantidad (Input)
        - ListaProductos (Datos para llenar el Dropdown)
--->
+*@
 @model MVC.ViewModels.AgregarProductoViewModel
 
 @{
     ViewData["Title"] = "Agregar Producto al Presupuesto";
 }
 
-<!-- Mostramos el ID del presupuesto para dar contexto al usuario -->
+@* Mostramos el ID del presupuesto para dar contexto al usuario *@
 <h2>Agregar Producto al Presupuesto Nro @Model.IdPresupuesto</h2>
 <hr />
 
 <div class="row">
     <div class="col-md-6">
-        <!-- 
+        @* 
             FORMULARIO (POST):
             Envía los datos a la acción 'AgregarProducto' (POST) del controlador.
-        -->
+        *@
         <form asp-action="AgregarProducto">
             
-            <!-- 
+            @* 
                 ❗ CAMPO OCULTO (HIDDEN) PARA ID PRESUPUESTO ❗
                 Fundamental. El usuario no elige el presupuesto aquí (ya vino desde él),
                 pero necesitamos enviar este ID de vuelta al controlador para saber
                 A QUÉ presupuesto agregarle el ítem.
-            -->
+            *@
             <input type="hidden" asp-for="IdPresupuesto" />
 
-            <!-- GRUPO: SELECCIÓN DE PRODUCTO (DROPDOWN) -->
+            @* GRUPO: SELECCIÓN DE PRODUCTO (DROPDOWN) *@
             <div class="form-group">
                 <label asp-for="IdProducto" class="control-label"></label>
                 
-                <!-- 
+                @* 
                     <select>: Elemento HTML para listas desplegables.
                     asp-for="IdProducto": El valor seleccionado se guardará en esta propiedad.
                     asp-items="@Model.ListaProductos": 
                         - Magia de ASP.NET Core. 
                         - Toma el objeto 'SelectList' del ViewModel y genera automáticamente
                           las opciones <option value="1">Coca Cola</option>...
-                -->
+                *@
                 <select asp-for="IdProducto" 
                         asp-items="@Model.ListaProductos" 
                         class="form-control">
-                    <!-- Opción por defecto (valor nulo/vacío) -->
+                    @* Opción por defecto (valor nulo/vacío) *@
                     <option value="">-- Seleccionar Producto --</option>
                 </select>
                 
-                <!-- Mensaje de error si no selecciona nada -->
+                @* Mensaje de error si no selecciona nada *@
                 <span asp-validation-for="IdProducto" class="text-danger"></span>
             </div>
 
-            <!-- GRUPO: CANTIDAD -->
+            @* GRUPO: CANTIDAD *@
             <div class="form-group">
                 <label asp-for="Cantidad" class="control-label"></label>
-                <!-- 
+                @* 
                     Input numérico.
                     Se aplicará la validación [Range(1, ...)] definida en el ViewModel.
-                -->
+                *@
                 <input asp-for="Cantidad" class="form-control" />
                 <span asp-validation-for="Cantidad" class="text-danger"></span> 
             </div>
@@ -82,11 +82,11 @@
 </div>
 
 <div class="mt-3">
-    <!-- Enlace para cancelar y volver al detalle del presupuesto -->
+    @* Enlace para cancelar y volver al detalle del presupuesto *@
     <a asp-action="Details" asp-route-id="@Model.IdPresupuesto">Volver al Presupuesto</a>
 </div>
 
-<!-- Scripts de validación del lado del cliente -->
+@* Scripts de validación del lado del cliente *@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

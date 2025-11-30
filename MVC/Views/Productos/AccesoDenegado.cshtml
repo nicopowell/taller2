@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: ACCESO DENEGADO (Error 403)
     ================================================================================
@@ -10,7 +10,7 @@
        
     2. model dynamic: Como esta vista es solo informativa y no necesita procesar datos
        complejos del servidor, usamos 'dynamic' para indicar que no hay un ViewModel estricto.
--->
+*@
 @model dynamic 
 
 @{
@@ -18,30 +18,30 @@
 }
 
 <div class="row">
-    <!-- Centrado y diseño con Bootstrap -->
+    @* Centrado y diseño con Bootstrap *@
     <div class="col-md-10 mx-auto text-center">
         
-        <!-- Título Rojo para indicar error visualmente -->
+        @* Título Rojo para indicar error visualmente *@
         <h1 class="text-danger">❌ Acceso Denegado (Error 403)</h1>
         <hr />
         
         <h2>Lo sentimos.</h2>
         <p>
-            <!-- Mensaje claro explicando POR QUÉ falló (Feedback al usuario) -->
+            @* Mensaje claro explicando POR QUÉ falló (Feedback al usuario) *@
             Su rol de <strong>Cliente</strong> no tiene permisos para acceder a esta funcionalidad. 
             Esta sección está reservada para usuarios con el rol de <strong>Administrador</strong>.
         </p>
         
         <div class="mt-4">
-            <!-- 
+            @* 
                 NAVEGACIÓN (Tag Helpers):
                 Ofrecemos salidas claras para no dejar al usuario "atrapado" en el error.
-            -->
+            *@
             
-            <!-- Opción 1: Volver a un lugar seguro (Home) -->
+            @* Opción 1: Volver a un lugar seguro (Home) *@
             <a asp-controller="Home" asp-action="Index" class="btn btn-primary">Volver a Home</a>
             
-            <!-- Opción 2: Cerrar sesión (útil si quiere entrar con otra cuenta que sí tenga permisos) -->
+            @* Opción 2: Cerrar sesión (útil si quiere entrar con otra cuenta que sí tenga permisos) *@
             <a asp-controller="Login" asp-action="Logout" class="btn btn-secondary">Cerrar Sesión</a>
         </div>
     </div>

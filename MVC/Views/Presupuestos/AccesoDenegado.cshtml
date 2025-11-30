@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: ACCESO DENEGADO - PRESUPUESTOS (Error 403)
     ================================================================================
@@ -12,7 +12,7 @@
        Esta vista específica se usa dentro del módulo de Presupuestos.
        A diferencia de un error 404 (No encontrado), aquí sabemos quién es el usuario
        pero le prohibimos el paso (403 Forbidden).
--->
+*@
 @model dynamic 
 
 @{
@@ -21,35 +21,35 @@
 
 <div class="row">
     <div class="col-md-10 mx-auto text-center">
-        <!-- Encabezado visual de error con estilo de Bootstrap (text-danger) -->
+        @* Encabezado visual de error con estilo de Bootstrap (text-danger) *@
         <h1 class="text-danger">❌ Acceso Denegado (Error 403)</h1>
         <hr />
         
         <h2>Lo sentimos.</h2>
         <p>
-            <!-- Explicación clara del motivo del bloqueo (Feedback al usuario) -->
+            @* Explicación clara del motivo del bloqueo (Feedback al usuario) *@
             Su rol de <strong>Cliente</strong> no tiene permisos para acceder a esta funcionalidad. 
             Esta sección está reservada para usuarios con el rol de <strong>Administrador</strong>.
         </p>
         
         <div class="mt-4">
-            <!-- 
+            @* 
                 OPCIONES DE NAVEGACIÓN (Tag Helpers):
                 Es fundamental en UX no dejar al usuario "atrapado" en una pantalla de error.
-            -->
+            *@
             
-            <!-- 
+            @* 
                 1. Volver a un lugar seguro: 
                 El 'Index' de Presupuestos suele ser visible para Clientes (solo lectura),
                 por lo que es un retorno seguro.
-            -->
+            *@
             <a asp-action="Index" class="btn btn-primary">Volver a Listado de Presupuestos</a>
             
-            <!-- 
+            @* 
                 2. Salida de emergencia:
                 Cerrar sesión permite al usuario intentar ingresar con una cuenta de Administrador.
                 Usa 'asp-controller="Login"' para saltar a otro controlador.
-            -->
+            *@
             <a asp-controller="Login" asp-action="Logout" class="btn btn-secondary">Cerrar Sesión</a>
         </div>
     </div>

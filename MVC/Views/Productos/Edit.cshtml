@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: MODIFICAR PRODUCTO (Edit.cshtml)
     ================================================================================
@@ -7,7 +7,7 @@
     1. model: Al igual que en Create, usamos 'ProductoViewModel'.
        Esto es crucial para que el Model Binding funcione al recibir los datos 
        y para aplicar las validaciones (Data Annotations) definidas en el VM.
--->
+*@
 @model MVC.ViewModels.ProductoViewModel
 
 @{
@@ -19,38 +19,38 @@
 
 <div class="row">
     <div class="col-md-6">
-        <!-- 
+        @* 
             FORMULARIO (POST a Edit):
             asp-action="Edit": Envía los datos al método [HttpPost] Edit del controlador.
             El ID del producto suele ir también en la URL (ruta) o en el campo oculto.
-        -->
+        *@
         <form asp-action="Edit">
             
-            <!-- 
+            @* 
                 VALIDATION SUMMARY:
                 Muestra errores generales del modelo que no son específicos de un campo.
                 "ModelOnly": Solo muestra errores a nivel de modelo, no de propiedades individuales.
-            -->
+            *@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
-            <!-- 
+            @* 
                 ❗ CAMPO OCULTO (HIDDEN) PARA EL ID ❗
                 Esto es CRÍTICO en una vista de Edición.
                 Necesitamos enviar el ID del producto que estamos modificando de vuelta al controlador.
                 Como el usuario no debe editar el ID, lo ponemos 'hidden'.
                 Si falta esto, el 'IdProducto' llegará como 0 al controlador y fallará el UPDATE.
-            -->
+            *@
             <input type="hidden" asp-for="IdProducto" /> 
 
-            <!-- Campo Descripción -->
+            @* Campo Descripción *@
             <div class="form-group">
                 <label asp-for="Descripcion" class="control-label"></label>
-                <!-- El input vendrá precargado con el valor actual gracias al Tag Helper asp-for -->
+                @* El input vendrá precargado con el valor actual gracias al Tag Helper asp-for *@
                 <input asp-for="Descripcion" class="form-control" />
                 <span asp-validation-for="Descripcion" class="text-danger"></span> 
             </div>
             
-            <!-- Campo Precio -->
+            @* Campo Precio *@
             <div class="form-group">
                 <label asp-for="Precio" class="control-label"></label>
                 <input asp-for="Precio" class="form-control" />
@@ -68,10 +68,10 @@
     <a asp-action="Index">Volver a la lista</a>
 </div>
 
-<!-- 
+@* 
     SECCIÓN DE SCRIPTS (Validación Cliente):
     Misma lógica que en Create.cshtml. Habilita validación inmediata en el navegador.
--->
+*@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     

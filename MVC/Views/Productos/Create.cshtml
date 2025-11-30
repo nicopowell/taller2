@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: CREAR PRODUCTO (Create.cshtml)
     ================================================================================
@@ -8,7 +8,7 @@
        Aquí usamos 'ProductoViewModel' (NO la entidad 'Producto') para aprovechar las
        validaciones de presentación ([Required], [StringLength]) definidas en el TP 9.
        Esto permite que la vista sea "fuertemente tipada" (IntelliSense ayuda).
--->
+*@
 @model MVC.ViewModels.ProductoViewModel
 
 @{
@@ -19,7 +19,7 @@
 <hr />
 <div class="row">
   <div class="col-md-4">
-    <!-- 
+    @* 
             FORMULARIO (Tag Helper asp-action):
             En lugar de escribir <form action="/Productos/Create" method="post">,
             usamos 'asp-action="Create"'.
@@ -27,43 +27,43 @@
             Esto le dice a Razor: "Genera la URL correcta para ir a la acción 'Create' 
             del Mismo Controlador actual (Productos) usando el método POST".
             También genera automáticamente un "Anti-Forgery Token" oculto para seguridad.
-        -->
+        *@
     <form asp-action="Create">
 
-      <!-- GRUPO: DESCRIPCIÓN -->
+      @* GRUPO: DESCRIPCIÓN *@
       <div class="form-group">
-        <!-- 
+        @* 
                     asp-for="Descripcion":
                     1. Crea el atributo 'for="Descripcion"' en el label.
                     2. Muestra el texto definido en [Display(Name="...")] del ViewModel.
-                -->
+                *@
         <label asp-for="Descripcion" class="control-label"></label>
 
-        <!-- 
+        @* 
                     asp-for="Descripcion" (en el input):
                     1. Genera id="Descripcion" y name="Descripcion".
                     2. Si el modelo vuelve con errores, rellena automáticamente el valor (value="...").
                     3. Agrega atributos 'data-val' para que jQuery Validation sepa qué reglas aplicar
                        (ej: data-val-length-max="250").
-                -->
+                *@
         <input asp-for="Descripcion" class="form-control" />
 
-        <!-- 
+        @* 
                     asp-validation-for="Descripcion":
                     Este es el "lugar reservado" para mostrar el mensaje de error.
                     Si falla la validación (servidor o cliente), el texto rojo aparece aquí.
-                -->
+                *@
         <span asp-validation-for="Descripcion" class="text-danger"></span>
       </div>
 
-      <!-- GRUPO: PRECIO -->
+      @* GRUPO: PRECIO *@
       <div class="form-group">
         <label asp-for="Precio" class="control-label"></label>
-        <!-- 
+        @* 
                     Al ser la propiedad 'Precio' de tipo decimal/double, el Tag Helper
                     automáticamente genera type="text" (o number según config) y las
                     reglas de validación de rangos definidas en el ViewModel.
-                -->
+                *@
         <input asp-for="Precio" class="form-control" />
         <span asp-validation-for="Precio" class="text-danger"></span>
       </div>
@@ -75,23 +75,23 @@
   </div>
 </div>
 <div>
-  <!-- Enlace simple para volver al listado (método GET) -->
+  @* Enlace simple para volver al listado (método GET) *@
   <a asp-action="Index">Volver a la lista</a>
 </div>
 
-<!-- 
+@* 
     SECCIÓN DE SCRIPTS (Validación de lado del Cliente - TP 9):
     Esta sección se inyecta al final del layout (_Layout.cshtml) donde está "RenderSection".
--->
+*@
 @section Scripts {
-  <!-- 
+  @* 
           1. Partial View '_ValidationScriptsPartial':
              Esta es una vista parcial que viene por defecto en ASP.NET Core.
              Incluye las librerías 'jquery.validate.js' y 'jquery.validate.unobtrusive.js'.
            
              * ¿Qué hace? Lee los atributos 'data-val' que generaron los inputs arriba
                y ejecuta la validación en el navegador SIN recargar la página.
-      -->
+      *@
   <partial name="_ValidationScriptsPartial" />
 
   <script>

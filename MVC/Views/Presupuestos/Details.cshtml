@@ -1,4 +1,4 @@
-<!-- 
+@* 
     ================================================================================
     VISTA: DETALLES DEL PRESUPUESTO (Lectura)
     ================================================================================
@@ -11,41 +11,41 @@
     2. model: Usamos la Entidad de Dominio 'Presupuesto' directamente.
        Esto nos da acceso a las propiedades 'IdPresupuesto', 'NombreDestinatario', 
        'FechaCreacion' y a la lista 'Detalle' (relación con productos).
--->
+*@
 @model MVC.Models.Presupuesto
 
 @{
     ViewData["Title"] = "Detalles del Presupuesto";
 }
 
-<!-- Encabezado con el ID del presupuesto -->
+@* Encabezado con el ID del presupuesto *@
 <h2 class="mt-4">Detalles del Presupuesto Nro. @Html.DisplayFor(model => model.IdPresupuesto)</h2>
 <hr />
 
 <div>
-    <!-- Lista de Definición para mostrar los datos de cabecera -->
+    @* Lista de Definición para mostrar los datos de cabecera *@
     <dl class="row">
-        <!-- Nombre del Destinatario -->
+        @* Nombre del Destinatario *@
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.NombreDestinatario)</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.NombreDestinatario)</dd>
 
-        <!-- Fecha de Creación -->
+        @* Fecha de Creación *@
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FechaCreacion)</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaCreacion)</dd>
         
-        <!-- 
+        @* 
             Monto Total (Calculado):
             Llamamos al método de lógica de negocio 'MontoPresupuesto()' directamente en la vista.
             .ToString("N2") formatea el número con 2 decimales y separadores de miles.
-        -->
+        *@
         <dt class="col-sm-3">Monto Total (sin IVA)</dt>
         <dd class="col-sm-9">$ @Model.MontoPresupuesto().ToString("N2")</dd>
         
-        <!-- Monto Total con IVA (Calculado) -->
+        @* Monto Total con IVA (Calculado) *@
         <dt class="col-sm-3">Monto Total (con IVA)</dt>
         <dd class="col-sm-9 text-success">$ @Model.MontoPresupuestoConIva().ToString("N2")</dd>
         
-        <!-- Cantidad de Productos (Calculado) -->
+        @* Cantidad de Productos (Calculado) *@
         <dt class="col-sm-3">Unidades de Productos</dt>
         <dd class="col-sm-9">@Model.CantidadProductos() unidades</dd>
     </dl>
@@ -54,20 +54,20 @@
 <h4 class="mt-4">Productos Incluidos</h4>
 
 <p>
-    <!-- 
+    @* 
         Botón para añadir producto:
         Lleva a la acción 'AgregarProducto' del controlador, pasando el ID del presupuesto actual.
         Esto permite iniciar el flujo para agregar un ítem a este presupuesto específico.
-    -->
+    *@
     <a asp-action="AgregarProducto" asp-route-id="@Model.IdPresupuesto" class="btn btn-sm btn-info">
         Añadir Producto
     </a>
 </p>
 
-<!-- 
+@* 
     Tabla de Productos:
     Verificamos si hay detalles en la lista 'Detalle' antes de renderizar la tabla.
--->
+*@
 @if (Model.Detalle.Any())
 {
     <table class="table">
@@ -109,9 +109,9 @@ else
 }
 
 <div class="mt-3">
-    <!-- Enlace para editar el presupuesto -->
+    @* Enlace para editar el presupuesto *@
     <a asp-action="Edit" asp-route-id="@Model.IdPresupuesto">Editar Presupuesto</a> |
     
-    <!-- Enlace para volver a la lista -->
+    @* Enlace para volver a la lista *@
     <a asp-action="Index">Volver a la lista</a>
 </div>

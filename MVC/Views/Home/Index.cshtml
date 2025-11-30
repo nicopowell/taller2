@@ -1,4 +1,4 @@
-﻿<!-- 
+﻿@* 
     ================================================================================
     VISTA: HOME INDEX (Página Principal)
     ================================================================================
@@ -7,7 +7,7 @@
     1. Propósito:
        Esta es la vista por defecto que se carga al entrar a la raíz del sitio ("/").
        No tiene model porque es una página estática/informativa que no procesa datos.
--->
+*@
 
 @{
     // --------------------------------------------------------------------------------
@@ -21,24 +21,24 @@
     ViewData["Title"] = "Home Page";
 }
 
-<!-- 
+@* 
     CONTENIDO PRINCIPAL (RenderBody)
     Todo este HTML será inyectado dentro del <body> del archivo '_Layout.cshtml',
-    justo donde dice @RenderBody().
--->
+    justo donde dice RenderBody().
+*@
 <div class="text-center">
-    <!-- 
+    @* 
         CLASES BOOTSTRAP (Estilos):
         - text-center: Centra el texto horizontalmente.
         - display-4: Tipografía de encabezado grande y delgada (estilo visual).
-    -->
+    *@
     <h1 class="display-4">Welcome</h1>
     
     <p>Taller de lenguajes 2 - Turno Tarde</p>
     
-    <!-- 
+    @* 
         Nota para el examen:
         Si quisieras mostrar el nombre del usuario logueado aquí, podrías inyectar
         el servicio de usuario o leerlo de la sesión, pero generalmente eso va en el Layout.
-    -->
+    *@
 </div>

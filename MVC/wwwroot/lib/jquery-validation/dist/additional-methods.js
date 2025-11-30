@@ -211,7 +211,7 @@ $.validator.addMethod( "bic", function( value, element ) {
  *   W. Permanent establishments of non-resident in Spain
  *
  * [ C ]: Control Digit. It can be a number or a letter depending on T value:
- * [ T ]  -->  [ C ]
+ * [ T ]  *@  [ C ]
  * ------    ----------
  *   A         Number
  *   B         Number
